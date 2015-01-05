@@ -25,56 +25,105 @@
               [:.bg-]
               colors)
 
-(defstyles tools
-  (selectors (fn [_ c]
-               [{:color c}
-                [:&:before {:color c}]])
-             [:.color-]
-             colors)
+   (selectors (fn [_ c]
+                [:&
+                 [:path {:fill c}]])
+              [:.fill-]
+              colors)))
 
-  (selectors (fn [_ c]
-               {:background c})
-             [:.bg-]
-             colors)
-
-  (selectors (fn [_ c]
-               [:&
-                [:path {:fill c}]])
-             [:.fill-]
-             colors)
-
-  (selectors (fn [_ a]
-               {:text-align a})
-             [:.align-]
-             {:left "left"
-              :right "right"
-              :center "center"
-              :justify "justify"})
-
-  (selectors (fn [_ a]
-               {:vert-align a})
-             [:.align-]
-             {:top "top"
-              :bottom "bottom"})
-
-  (selectors (fn [_ f]
-               {:float f})
-             [:.pull-]
-             {:left "left"
-              :right "right"})
-
+(s/defn font-size
+  [sizes :- {s/Keyword (or garden.types.CSSUnit
+                           (s/both [garden.types.CSSUnit]
+                                   (s/pred (comp (partial = 2) count))))}]
   (selectors (fn [_ [size height]]
-               [{:font-size size
-                 :line-height height}])
+               [(cond-> {:font-size size}
+                        height (merge {:line-height height}))])
              [:.font-]
-             {:small [(px 14) (px 18)]
-              :msmall [(px 18) (px 23)]
-              :medium [(px 22) (px 25)]
-              :mlarge [(px 28) (px 30)]
-              :large [(px 44) (px 50)]
-              :xlarge [(px 64) (px 56)]
-              :xxlarge ["27vw" "27vw"]})
+             sizes))
 
+(s/defn border
+  ([] (border 1 5))
+  ([max] (border 1 max))
+  ([min max]
+     (list
+      (selectors (fn [r]
+                   {:border-radius r})
+                 {:.round "50%"
+                  :.rounded (px 7)})
+      (selectors (fn [_ loc width]
+                   (letfn [(make-border [loc]
+                             {:border (cond->> {:style :solid
+                                                :width width
+                                                :color "rgba(157, 161, 166, 0.3)"}
+                                               loc (hash-map loc))})]
+                     (if (sequential? loc)
+                       (mapv make-border loc)
+                       (make-border loc))))
+                 [:.border]
+                 {"" nil
+                  :-top :top
+                  :-right :right
+                  :-bottom :bottom
+                  :-left :left
+                  :-vert [:top :bottom]
+                  :-horiz [:left :right]}
+                 (merge
+                  {"" (px min)}
+                  (into {}
+                        (for [w (range min (inc max))]
+                          [(keyword (str "-" w)) (px w)])))))))
+
+(defn display []
+  (list
+   (selectors (fn [d]
+                {:display d})
+              {:.hidden "none"
+               :.inline "inline"
+               :.inline-block "inline-block"})
+   [:.inline-block
+    {:vertical-align "top"}]))
+
+(defn opacity []
+  (selectors (fn [o]
+               {:opacity o})
+             {:.transparent 0
+              :.light-less 0.7
+              :.light 0.5
+              :.lighter 0.3}))
+
+(defn align []
+  (list
+   (selectors (fn [_ a]
+                {:text-align a})
+              [:.align-]
+              {:left "left"
+               :right "right"
+               :center "center"
+               :justify "justify"})
+   (selectors (fn [_ a]
+                {:vert-align a})
+              [:.align-]
+              {:top "top"
+               :bottom "bottom"})))
+
+(defn position []
+  (list
+   (selectors (fn [_ f]
+                {:float f})
+              [:.pull-]
+              {:left "left"
+               :right "right"})
+   (selectors(fn [m]
+               {:margin m})
+             {:.auto "auto"})
+
+   (selectors (fn [p]
+                {:position p})
+              {:.relative "relative"
+               :.absolute "absolute !important"
+               :.fixed "fixed !important"})))
+
+(defn overflow []
   (selectors (fn [_ [x y]]
                {:overflow-x x
                 :overflow-y y})
@@ -82,66 +131,16 @@
              {:all ["scroll" "scroll"]
               :x ["scroll" "hidden"]
               :y ["hidden" "scroll"]
-              :hidden ["hidden" "hidden"]})
+              :hidden ["hidden" "hidden"]}))
 
-  (selectors (fn [_ loc width]
-               (letfn [(make-border [loc]
-                         {:border (cond->> {:style :solid
-                                            :width width
-                                            :color "rgba(157, 161, 166, 0.3)"}
-                                           loc (hash-map loc))})]
-                 (if (sequential? loc)
-                   (mapv make-border loc)
-                   (make-border loc))))
-             [:.border]
-             {"" nil
-              :-top :top
-              :-right :right
-              :-bottom :bottom
-              :-left :left
-              :-vert [:top :bottom]
-              :-horiz [:left :right]}
-             (merge
-              {"" (px 1)}
-              (into {}
-                    (for [w (range 1 6)]
-                      [(keyword (str "-" w)) (px w)]))))
-
-  (selectors (fn [d]
-                   {:display d})
-             {:.hidden "none"
-              :.inline "inline"
-              :.inline-block "inline-block"})
-  [:.inline-block
-   {:vertical-align "top"}]
-
-  (selectors (fn [o]
-                   {:opacity o})
-             {:.transparent 0
-              :.light-less 0.7
-              :.light 0.5
-              :.lighter 0.3})
-
+(defstyles tools
   (selectors (fn [t]
-                   {:text-transform t})
+               {:text-transform t})
              {:.caps "uppercase"
               :.title-case "capitalize"})
 
-  (selectors(fn [m]
-                   {:margin m})
-             {:.auto "auto"})
-
-  (selectors (fn [p]
-               {:position p})
-             {:.relative "relative"
-              :.absolute "absolute !important"
-              :.fixed "fixed !important"})
-  (selectors (fn [r]
-               {:border-radius r})
-             {:.round "50%"
-              :.rounded (px 7)})
   (selectors (fn [w]
-                   {:font-weight w})
+               {:font-weight w})
              {:.thin 100
               :.semi-bold 600
               :.bold 900})
@@ -220,41 +219,40 @@
   [:.content-box
    ^:prefix {:box-sizing "content-box"}]
 
-  (at-media {:min-width (px 568)}
-            [:.hover-opacity
-             :.selected-opacity
-             :.active-opacity
-             {:opacity 1}
-             [:&:hover :&.active :&.selected
-              {:opacity 0.5
-               :cursor "pointer"}]]
+  [:.hover-opacity
+   :.selected-opacity
+   :.active-opacity
+   {:opacity 1}
+   [:&:hover :&.active :&.selected
+    {:opacity 0.5
+     :cursor "pointer"}]]
 
-            [:.hover-opacity-reverse
-             :.selected-opacity-reverse
-             :.active-opacity-reverse
-             {:opacity 0.5}
-             [:&:hover :&.selected :&.active
-              {:opacity 1
-               :cursor "pointer"}]]
+  [:.hover-opacity-reverse
+   :.selected-opacity-reverse
+   :.active-opacity-reverse
+   {:opacity 0.5}
+   [:&:hover :&.selected :&.active
+    {:opacity 1
+     :cursor "pointer"}]]
 
-            [:.hover-opacity-parent
-             :.selected-opacity-parent
-             :.active-opacity-parent
-             [:&:hover :&.active :&.selected
-              {:cursor "pointer"}
-              [:.hover-opacity-child
-               :.selected-opacity-child
-               :.active-opacity-child
-               {:opacity 0.5}]]]
+  [:.hover-opacity-parent
+   :.selected-opacity-parent
+   :.active-opacity-parent
+   [:&:hover :&.active :&.selected
+    {:cursor "pointer"}
+    [:.hover-opacity-child
+     :.selected-opacity-child
+     :.active-opacity-child
+     {:opacity 0.5}]]]
 
-            [:.hover-opacity-parent-reverse
-             :.selected-opacity-parent-reverse
-             :.active-opacity-parent-reverse
-             [:&:hover :&.active :&.selected
-              {:cursor "pointer"}
-              [:.hover-opacity-child-reverse
-               :.selected-opacity-child-reverse
-               :.active-opacity-child-reverse
-               {:opacity 0.5}]]])
+  [:.hover-opacity-parent-reverse
+   :.selected-opacity-parent-reverse
+   :.active-opacity-parent-reverse
+   [:&:hover :&.active :&.selected
+    {:cursor "pointer"}
+    [:.hover-opacity-child-reverse
+     :.selected-opacity-child-reverse
+     :.active-opacity-child-reverse
+     {:opacity 0.5}]]]
 
   )
