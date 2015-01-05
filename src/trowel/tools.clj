@@ -73,26 +73,68 @@
                         (for [w (range min (inc max))]
                           [(keyword (str "-" w)) (px w)])))))))
 
-(defn display []
+(defn spacing
+  [grid]
   (list
-   (selectors (fn [d]
-                {:display d})
-              {:.hidden "none"
-               :.inline "inline"
-               :.inline-block "inline-block"})
-   [:.inline-block
-    {:vertical-align "top"}]))
+   (selectors (fn [prop loc s]
+                (cond->> (cond
+                          (sequential? loc) (zipmap loc (repeat s))
+                          loc {loc s}
+                          :else s)
+                         prop (hash-map prop))
+                #_(-> (cond
+                     (sequential? loc) (zipmap loc (repeat s))
+                     loc {loc s}
+                     :else s)
+                    (?>> prop )))
+              {"" nil
+               :.padding- :padding
+               :.margin- :margin}
+              {"" nil
+               :top- :top
+               :right- :right
+               :bottom- :bottom
+               :left- :left
+               :horiz- [:left :right]
+               :vert- [:top :bottom]}
+              (into {} grid))
+   [:.top {:top (px 0)}]
+   [:.right {:right (px 0)}]
+   [:.bottom {:bottom (px 0)}]
+   [:.left {:left (px 0)}]))
 
-(defn opacity []
-  (selectors (fn [o]
-               {:opacity o})
-             {:.transparent 0
-              :.light-less 0.7
-              :.light 0.5
-              :.lighter 0.3}))
+(defn nudge
+  ([] (nudge 5))
+  ([max]
+     (selectors (fn [_ loc amt]
+                  {:margin {loc amt}})
+                [:.nudge-]
+                {:down :top
+                 :left :right
+                 :up :bottom
+                 :right :left}
+                (into {}
+                      (for [x (range 1 (inc max))]
+                        [(keyword (str "-" x)) (px x)])))))
+
+(s/defn media-breaks
+  ([] (media-breaks {:sm (px 568)
+                     :md (px 768)
+                     :lg (px 1024)
+                     :xl (px 1280)}))
+  ([breaks :- {s/Keyword garden.types.CSSUnit}]
+     (selectors (fn [_ bound break]
+                  (at-media {bound break}
+                            [:&
+                             {:display "none"}]))
+                [:.hide-]
+                {:gt- :min-width
+                 :lt- :max-width}
+                breaks)))
 
 (defn align []
   (list
+   [:.nowrap {:white-space "nowrap"}]
    (selectors (fn [_ a]
                 {:text-align a})
               [:.align-]
@@ -106,22 +148,54 @@
               {:top "top"
                :bottom "bottom"})))
 
+(defn opacity []
+  (selectors (fn [o]
+               {:opacity o})
+             {:.transparent 0
+              :.light-less 0.7
+              :.light 0.5
+              :.lighter 0.3}))
+
+(defn display []
+  (list
+   (selectors (fn [d]
+                {:display d})
+              {:.hidden "none"
+               :.inline "inline"
+               :.inline-block "inline-block"})
+   [:.inline-block
+    {:vertical-align "top"}]))
+
+(defn box-sizing []
+  (list
+   [:.border-box
+    ^:prefix {:box-sizing "border-box"}]
+   [:.content-box
+    ^:prefix {:box-sizing "content-box"}]))
+
 (defn position []
+  (list
+   (selectors(fn [m]
+               {:margin m})
+             {:.auto "auto"})
+   (selectors (fn [p]
+                {:position p})
+              {:.relative "relative"
+               :.absolute "absolute !important"
+               :.fixed "fixed !important"})))
+
+(defn float []
   (list
    (selectors (fn [_ f]
                 {:float f})
               [:.pull-]
               {:left "left"
                :right "right"})
-   (selectors(fn [m]
-               {:margin m})
-             {:.auto "auto"})
-
-   (selectors (fn [p]
-                {:position p})
-              {:.relative "relative"
-               :.absolute "absolute !important"
-               :.fixed "fixed !important"})))
+   [:.clearfix {:*zoom 1}
+    [:&:before :&:after {:display "table"
+                         :line-height "0"
+                         :content "\"\""}]
+    [:&:after {:clear "both"}]]))
 
 (defn overflow []
   (selectors (fn [_ [x y]]
@@ -133,18 +207,19 @@
               :y ["hidden" "scroll"]
               :hidden ["hidden" "hidden"]}))
 
-(defstyles tools
+(defn text-transform []
   (selectors (fn [t]
                {:text-transform t})
              {:.caps "uppercase"
-              :.title-case "capitalize"})
+              :.title-case "capitalize"}))
 
+(defn font-weight []
   (selectors (fn [w]
                {:font-weight w})
              {:.thin 100
               :.semi-bold 600
-              :.bold 900})
-
+              :.bold 900}))
+(defn size []
   (selectors (fn [size props]
                (reduce (fn [out prop] (assoc out prop size)) {} props))
              {:.full "100%"
@@ -153,71 +228,13 @@
               :.third "33.33%"}
              {"" [:width :height]
               :-width [:width]
-              :-height [:height]})
+              :-height [:height]}))
 
-  (selectors (fn [prop loc s]
-               {prop (if loc
-                       (if (sequential? loc)
-                         (zipmap loc (repeat s))
-                         {loc s})
-                       s)})
-             {:.padding- :padding
-              :.margin- :margin}
-             {"" nil
-              :top- :top
-              :right- :right
-              :bottom- :bottom
-              :left- :left
-              :horiz- [:left :right]
-              :vert- [:top :bottom]}
-             (into {} (grid 15 3 10 px)))
-
-  (selectors (fn [_ loc amt]
-               {:margin {loc amt}})
-             [:.nudge-]
-             {:down :top
-              :left :right
-              :up :bottom
-              :right :left}
-             (into {}
-                   (for [x (range 1 6)]
-                     [(keyword (str "-" x)) (px x)])))
-
-  (selectors (fn [_ bound break]
-               (at-media {bound break}
-                         [:&
-                          {:display "none"}]))
-             [:.hide-]
-             {:gt- :min-width
-              :lt- :max-width}
-             {:sm (px 568)
-              :md (px 768)
-              :lg (px 1024)
-              :xl (px 1280)})
-
-  [:.nowrap {:white-space "nowrap"}]
-  [:.top {:top (px 0)}]
-  [:.right {:right (px 0)}]
-  [:.bottom {:bottom (px 0)}]
-  [:.left {:left (px 0)}]
-  [:.pointer {:cursor "pointer"}]
-  [:.cover
-   ^:prefix {:background {:size "cover"
-                          :position "center center"
-                          :repeat "no-repeat"}}]
-
-  [:.clearfix {:*zoom 1}
-   [:&:before :&:after {:display "table"
-                        :line-height "0"
-                        :content "\"\""}]
-   [:&:after {:clear "both"}]]
+(defn interaction []
   [:.unselectable {:user-select "none"
                    :cursor "default"}]
   [:.pass-through {:pointer-events "none"}]
-  [:.border-box
-   ^:prefix {:box-sizing "border-box"}]
-  [:.content-box
-   ^:prefix {:box-sizing "content-box"}]
+  [:.pointer {:cursor "pointer"}]
 
   [:.hover-opacity
    :.selected-opacity
@@ -253,6 +270,24 @@
     [:.hover-opacity-child-reverse
      :.selected-opacity-child-reverse
      :.active-opacity-child-reverse
-     {:opacity 0.5}]]]
+     {:opacity 0.5}]]])
 
-  )
+(defn image []
+  [:.cover
+   ^:prefix {:background {:size "cover"
+                          :position "center center"
+                          :repeat "no-repeat"}}])
+
+(defn base []
+  (list
+   (align)
+   (opacity)
+   (box-sizing)
+   (position)
+   (float)
+   (overflow)
+   (text-transform)
+   (font-weight)
+   (size)
+   (interaction)
+   (image)))
