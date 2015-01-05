@@ -7,18 +7,23 @@
             [garden.arithmetic :refer [+ - * /]]
             [garden.stylesheet :refer [at-media]]
             [clojure.string :as str]
-
+            [plumbing.core :refer :all :exclude [update]]
+            [schema.core :as s]
             [trowel.utils :refer :all]))
 
-(def colors {:white (rgb 255 255 255)
-             :off-white (hsl 210 1 97)
-             :gray (hsl 213 5 95)
-             :black (rgb 0 0 0)
+(s/defn colors
+  [colors :- {s/Keyword garden.color.CSSColor}]
+  (list
+   (selectors (fn [_ c]
+                [{:color c}
+                 [:&:before {:color c}]])
+              [:.color-]
+              colors)
 
-             :blue (rgb 79 158 247)
-             :red (rgb 255 0 0)
-             :red-light (hsl 360 40 90)
-             :green (rgb 50 225 185)})
+   (selectors (fn [_ c]
+                {:background c})
+              [:.bg-]
+              colors)
 
 (defstyles tools
   (selectors (fn [_ c]
