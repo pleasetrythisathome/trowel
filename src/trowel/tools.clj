@@ -221,40 +221,40 @@
    ^:prefix {:box-sizing "content-box"}]
 
   (at-media {:min-width (px 568)}
-   [:.hover-opacity
-    :.selected-opacity
-    :.active-opacity
-    {:opacity 1}
-    [:&:hover :&.active :&.selected
-     {:opacity 0.5
-      :cursor "pointer"}]]
+            [:.hover-opacity
+             :.selected-opacity
+             :.active-opacity
+             {:opacity 1}
+             [:&:hover :&.active :&.selected
+              {:opacity 0.5
+               :cursor "pointer"}]]
 
-   [:.hover-opacity-reverse
-    :.selected-opacity-reverse
-    :.active-opacity-reverse
-    {:opacity 0.5}
-    [:&:hover :&.selected :&.active
-     {:opacity 1
-      :cursor "pointer"}]]
+            [:.hover-opacity-reverse
+             :.selected-opacity-reverse
+             :.active-opacity-reverse
+             {:opacity 0.5}
+             [:&:hover :&.selected :&.active
+              {:opacity 1
+               :cursor "pointer"}]]
 
-   [:.hover-opacity-parent
-    :.selected-opacity-parent
-    :.active-opacity-parent
-    [:&:hover :&.active :&.selected
-     {:cursor "pointer"}
-     [:.hover-opacity-child
-      :.selected-opacity-child
-      :.active-opacity-child
-      {:opacity 0.5}]]]
+            [:.hover-opacity-parent
+             :.selected-opacity-parent
+             :.active-opacity-parent
+             [:&:hover :&.active :&.selected
+              {:cursor "pointer"}
+              [:.hover-opacity-child
+               :.selected-opacity-child
+               :.active-opacity-child
+               {:opacity 0.5}]]]
 
-   [:.hover-opacity-parent-reverse
-    :.selected-opacity-parent-reverse
-    :.active-opacity-parent-reverse
-    [:&:hover :&.active :&.selected
-     {:cursor "pointer"}
-     [:.hover-opacity-child-reverse
-      :.selected-opacity-child-reverse
-      :.active-opacity-child-reverse
-      {:opacity 0.5}]]])
+            [:.hover-opacity-parent-reverse
+             :.selected-opacity-parent-reverse
+             :.active-opacity-parent-reverse
+             [:&:hover :&.active :&.selected
+              {:cursor "pointer"}
+              [:.hover-opacity-child-reverse
+               :.selected-opacity-child-reverse
+               :.active-opacity-child-reverse
+               {:opacity 0.5}]]])
 
   )
