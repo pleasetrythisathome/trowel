@@ -182,10 +182,7 @@
                 {:position p})
               {:.relative "relative"
                :.absolute "absolute !important"
-               :.fixed "fixed !important"})))
-
-(defn float []
-  (list
+               :.fixed "fixed !important"})
    (selectors (fn [_ f]
                 {:float f})
               [:.pull-]
@@ -284,7 +281,6 @@
    (opacity)
    (box-sizing)
    (position)
-   (float)
    (overflow)
    (text-transform)
    (font-weight)
