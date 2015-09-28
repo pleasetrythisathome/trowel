@@ -32,9 +32,7 @@
               colors)))
 
 (s/defn font-size
-  [sizes :- {s/Keyword (or garden.types.CSSUnit
-                           (s/both [garden.types.CSSUnit]
-                                   (s/pred (comp (partial = 2) count))))}]
+  [sizes :- {s/Keyword [garden.types.CSSUnit]}]
   (selectors (fn [_ [size height]]
                [(cond-> {:font-size size}
                         height (merge {:line-height height}))])
@@ -143,7 +141,7 @@
                :center "center"
                :justify "justify"})
    (selectors (fn [_ a]
-                {:vert-align a})
+                {:vertical-align a})
               [:.align-]
               {:top "top"
                :bottom "bottom"})))
@@ -220,7 +218,7 @@
   (selectors (fn [size props]
                (reduce (fn [out prop] (assoc out prop size)) {} props))
              {:.full "100%"
-              :.two-third "33.33%"
+              :.two-third "66.66%"
               :.half "50%"
               :.third "33.33%"}
              {"" [:width :height]
@@ -228,46 +226,47 @@
               :-height [:height]}))
 
 (defn interaction []
-  [:.unselectable {:user-select "none"
-                   :cursor "default"}]
-  [:.pass-through {:pointer-events "none"}]
-  [:.pointer {:cursor "pointer"}]
+  (list
+   [:.unselectable {:user-select "none"
+                    :cursor "default"}]
+   [:.pass-through {:pointer-events "none"}]
+   [:.pointer {:cursor "pointer"}]
 
-  [:.hover-opacity
-   :.selected-opacity
-   :.active-opacity
-   {:opacity 1}
-   [:&:hover :&.active :&.selected
-    {:opacity 0.5
-     :cursor "pointer"}]]
+   [:.hover-opacity
+    :.selected-opacity
+    :.active-opacity
+    {:opacity 1}
+    [:&:hover :&.active :&.selected
+     {:opacity 0.5
+      :cursor "pointer"}]]
 
-  [:.hover-opacity-reverse
-   :.selected-opacity-reverse
-   :.active-opacity-reverse
-   {:opacity 0.5}
-   [:&:hover :&.selected :&.active
-    {:opacity 1
-     :cursor "pointer"}]]
+   [:.hover-opacity-reverse
+    :.selected-opacity-reverse
+    :.active-opacity-reverse
+    {:opacity 0.5}
+    [:&:hover :&.selected :&.active
+     {:opacity 1
+      :cursor "pointer"}]]
 
-  [:.hover-opacity-parent
-   :.selected-opacity-parent
-   :.active-opacity-parent
-   [:&:hover :&.active :&.selected
-    {:cursor "pointer"}
-    [:.hover-opacity-child
-     :.selected-opacity-child
-     :.active-opacity-child
-     {:opacity 0.5}]]]
+   [:.hover-opacity-parent
+    :.selected-opacity-parent
+    :.active-opacity-parent
+    [:&:hover :&.active :&.selected
+     {:cursor "pointer"}
+     [:.hover-opacity-child
+      :.selected-opacity-child
+      :.active-opacity-child
+      {:opacity 0.5}]]]
 
-  [:.hover-opacity-parent-reverse
-   :.selected-opacity-parent-reverse
-   :.active-opacity-parent-reverse
-   [:&:hover :&.active :&.selected
-    {:cursor "pointer"}
-    [:.hover-opacity-child-reverse
-     :.selected-opacity-child-reverse
-     :.active-opacity-child-reverse
-     {:opacity 0.5}]]])
+   [:.hover-opacity-parent-reverse
+    :.selected-opacity-parent-reverse
+    :.active-opacity-parent-reverse
+    [:&:hover :&.active :&.selected
+     {:cursor "pointer"}
+     [:.hover-opacity-child-reverse
+      :.selected-opacity-child-reverse
+      :.active-opacity-child-reverse
+      {:opacity 0.5}]]]))
 
 (defn image []
   [:.cover
@@ -280,6 +279,7 @@
    (align)
    (opacity)
    (box-sizing)
+   (display)
    (position)
    (overflow)
    (text-transform)
