@@ -1,10 +1,10 @@
 (set-env!
  :dependencies '[[adzerk/bootlaces "0.1.6-SNAPSHOT" :scope "test"]
-                 [garden "1.2.5"]
+                 [garden "1.3.0"]
                  [me.raynes/fs "1.4.6"]
-                 [org.clojure/clojure "1.7.0-alpha4"]
-                 [prismatic/plumbing "0.3.5"]
-                 [prismatic/schema "0.3.2"]]
+                 [org.clojure/clojure "1.8.0-RC4"]
+                 [prismatic/plumbing "0.5.2"]
+                 [prismatic/schema "1.0.4"]]
  :source-paths #{"src"}
  :resource-paths #(conj % "resources"))
 
