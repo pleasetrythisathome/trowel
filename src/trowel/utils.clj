@@ -4,8 +4,7 @@
             [garden.units :refer [px]]
             [garden.color :refer [hsl rgb]]
             [garden.arithmetic :refer [+ - * /]]
-            [garden.stylesheet :refer [at-media]]
-            [me.raynes.fs :as fs]))
+            [garden.stylesheet :refer [at-media]]))
 
 (defn join-keys
   "joins a seq of keywords into a single keyword"
